@@ -1,0 +1,169 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1" />
+<meta name="robots" content="noindex, nofollow" />
+<title>Sarah Smart — Portfolio</title>
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/pdf.js/3.11.174/pdf_viewer.min.css" />
+<style>
+  :root{
+    --bg:#0f1115; --panel:#171a21; --ink:#f4f6fb; --muted:#9aa3b2;
+    --accent:#4f7cff; --accent-ink:#fff; --line:#262b36; --err:#ff6b6b;
+  }
+  *{box-sizing:border-box}
+  html,body{height:100%}
+  body{
+    margin:0; background:var(--bg); color:var(--ink);
+    font:15px/1.5 -apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,Helvetica,Arial,sans-serif;
+    -webkit-font-smoothing:antialiased;
+  }
+
+  /* ---- Gate ---- */
+  #gate{
+    position:fixed; inset:0; z-index:50; display:flex; align-items:center; justify-content:center;
+    padding:24px; background:radial-gradient(1200px 600px at 50% -10%, #1b2130 0%, var(--bg) 60%);
+  }
+  .card{
+    width:100%; max-width:380px; background:var(--panel); border:1px solid var(--line);
+    border-radius:16px; padding:28px 26px; box-shadow:0 20px 60px rgba(0,0,0,.45);
+  }
+  .card h1{margin:0 0 4px; font-size:19px; letter-spacing:-.01em}
+  .card p{margin:0 0 20px; color:var(--muted); font-size:13px}
+  .field{position:relative; display:flex; gap:8px}
+  input[type=password]{
+    flex:1; padding:12px 14px; font-size:15px; color:var(--ink);
+    background:#0f131b; border:1px solid var(--line); border-radius:10px; outline:none;
+  }
+  input[type=password]:focus{border-color:var(--accent)}
+  button{
+    padding:12px 16px; font-size:14px; font-weight:600; cursor:pointer;
+    background:var(--accent); color:var(--accent-ink); border:0; border-radius:10px;
+  }
+  button:disabled{opacity:.5; cursor:default}
+  .err{color:var(--err); font-size:13px; min-height:18px; margin-top:12px}
+  .spin{display:inline-block; width:14px; height:14px; border:2px solid #fff; border-top-color:transparent;
+    border-radius:50%; animation:sp .7s linear infinite; vertical-align:-2px; margin-right:6px}
+  @keyframes sp{to{transform:rotate(360deg)}}
+
+  /* ---- Viewer ---- */
+  #app{position:fixed; inset:0; display:none; flex-direction:column}
+  #bar{
+    height:52px; flex:0 0 auto; display:flex; align-items:center; gap:14px; padding:0 16px;
+    background:var(--panel); border-bottom:1px solid var(--line); z-index:10;
+  }
+  #bar .name{font-weight:600; font-size:14px; letter-spacing:-.01em}
+  #bar .sp{flex:1}
+  #bar .pg{color:var(--muted); font-size:13px; font-variant-numeric:tabular-nums}
+  .zbtn{background:#232838; color:var(--ink); font-weight:600; padding:8px 12px; border-radius:8px}
+  #viewerContainer{position:absolute; top:52px; right:0; bottom:0; left:0; overflow:auto; background:#0b0d11}
+  #viewer .page{margin:16px auto; border:1px solid var(--line); box-shadow:0 8px 30px rgba(0,0,0,.4)}
+  .annotationLayer a{position:absolute}
+</style>
+</head>
+<body>
+
+<div id="gate">
+  <form class="card" id="gateForm" autocomplete="off">
+    <h1>Sarah Smart — Portfolio</h1>
+    <p>This portfolio is private. Enter the password to view.</p>
+    <div class="field">
+      <input id="pw" type="password" placeholder="Password" autofocus />
+      <button id="go" type="submit">Unlock</button>
+    </div>
+    <div class="err" id="err"></div>
+  </form>
+</div>
+
+<div id="app">
+  <div id="bar">
+    <span class="name">Sarah Smart — Portfolio</span>
+    <span class="sp"></span>
+    <button class="zbtn" id="zout" title="Zoom out">–</button>
+    <button class="zbtn" id="zin" title="Zoom in">+</button>
+    <span class="pg" id="pg"></span>
+  </div>
+  <div id="viewerContainer"><div id="viewer" class="pdfViewer"></div></div>
+</div>
+
+<script src="https://cdnjs.cloudflare.com/ajax/libs/pdf.js/3.11.174/pdf.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/pdf.js/3.11.174/pdf_viewer.min.js"></script>
+<script>
+const ENC_FILE = 'portfolio.enc';
+const ITER = 200000;
+
+const gate = document.getElementById('gate');
+const form = document.getElementById('gateForm');
+const pwEl = document.getElementById('pw');
+const goEl = document.getElementById('go');
+const errEl = document.getElementById('err');
+
+pdfjsLib.GlobalWorkerOptions.workerSrc =
+  'https://cdnjs.cloudflare.com/ajax/libs/pdf.js/3.11.174/pdf.worker.min.js';
+
+async function deriveKey(password, salt){
+  const km = await crypto.subtle.importKey('raw', new TextEncoder().encode(password),
+    'PBKDF2', false, ['deriveKey']);
+  return crypto.subtle.deriveKey(
+    {name:'PBKDF2', salt, iterations:ITER, hash:'SHA-256'},
+    km, {name:'AES-GCM', length:256}, false, ['decrypt']);
+}
+
+async function unlock(password){
+  errEl.textContent = '';
+  goEl.disabled = true;
+  goEl.innerHTML = '<span class="spin"></span>';
+  try {
+    const resp = await fetch(ENC_FILE, {cache:'no-store'});
+    if(!resp.ok) throw new Error('Could not load portfolio data.');
+    const buf = new Uint8Array(await resp.arrayBuffer());
+    const salt = buf.slice(0,16), iv = buf.slice(16,28), data = buf.slice(28);
+    const key = await deriveKey(password, salt);
+    let plain;
+    try {
+      plain = await crypto.subtle.decrypt({name:'AES-GCM', iv}, key, data);
+    } catch(e){
+      throw new Error('Incorrect password.');
+    }
+    await showPdf(new Uint8Array(plain));
+  } catch(e){
+    errEl.textContent = e.message || 'Something went wrong.';
+    goEl.disabled = false;
+    goEl.textContent = 'Unlock';
+    pwEl.select();
+  }
+}
+
+let pdfViewer;
+async function showPdf(bytes){
+  const eventBus = new pdfjsViewer.EventBus();
+  const linkService = new pdfjsViewer.PDFLinkService({eventBus, externalLinkTarget:2});
+  pdfViewer = new pdfjsViewer.PDFViewer({
+    container: document.getElementById('viewerContainer'),
+    viewer: document.getElementById('viewer'),
+    eventBus, linkService,
+  });
+  linkService.setViewer(pdfViewer);
+
+  const pgEl = document.getElementById('pg');
+  eventBus.on('pagesinit', () => { pdfViewer.currentScaleValue = 'page-width'; });
+  eventBus.on('pagechanging', e => { pgEl.textContent = e.pageNumber + ' / ' + pdfViewer.pagesCount; });
+
+  const pdf = await pdfjsLib.getDocument({data: bytes}).promise;
+  pdfViewer.setDocument(pdf);
+  linkService.setDocument(pdf, null);
+
+  gate.style.display = 'none';
+  document.getElementById('app').style.display = 'flex';
+  window.addEventListener('resize', () => {
+    if(pdfViewer) pdfViewer.currentScaleValue = pdfViewer.currentScaleValue || 'page-width';
+  });
+}
+
+document.getElementById('zin').onclick = () => { if(pdfViewer) pdfViewer.currentScale *= 1.15; };
+document.getElementById('zout').onclick = () => { if(pdfViewer) pdfViewer.currentScale /= 1.15; };
+
+form.addEventListener('submit', e => { e.preventDefault(); if(pwEl.value) unlock(pwEl.value); });
+</script>
+</body>
+</html>
