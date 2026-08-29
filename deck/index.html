@@ -1,0 +1,96 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Sarah M. Smart — Portfolio Deck</title>
+<meta name="description" content="Portfolio deck — Sarah M. Smart, UX content designer and writer.">
+<meta name="robots" content="noindex, nofollow">
+<meta name="color-scheme" content="dark">
+<style>
+  :root{
+    --brick:#9c3327;
+    --brick-deep:#7d2820;
+    --cream:#f6f1e7;
+    --cream-dim:#e2d8c6;
+    --gold:#f0d093;
+    --line:rgba(246,241,231,.22);
+    --font: ui-sans-serif, -apple-system, "Segoe UI", Inter, Helvetica, Arial, sans-serif;
+  }
+  *{box-sizing:border-box}
+  html,body{height:100%}
+  body{
+    margin:0;
+    display:flex;
+    flex-direction:column;
+    background:var(--brick);
+    color:var(--cream);
+    font-family:var(--font);
+    -webkit-font-smoothing:antialiased;
+  }
+
+  header{
+    flex:none;
+    display:flex;
+    flex-wrap:wrap;
+    align-items:baseline;
+    gap:.35rem 1rem;
+    padding:.85rem clamp(1rem,4vw,1.75rem);
+    border-bottom:1px solid var(--line);
+    background:var(--brick-deep);
+  }
+  .name{font-weight:800;letter-spacing:-.01em;font-size:1.02rem}
+  .sep{color:var(--line)}
+  .sub{color:var(--cream-dim);font-size:.92rem}
+  .spacer{flex:1 1 auto}
+
+  .dl{
+    flex:none;
+    padding:.42rem .85rem;
+    border:1px solid var(--gold);
+    border-radius:.4rem;
+    color:var(--gold);
+    text-decoration:none;
+    font-size:.85rem;
+    font-weight:600;
+    white-space:nowrap;
+  }
+  .dl:hover,.dl:focus-visible{background:var(--gold);color:var(--brick-deep)}
+  .dl:focus-visible{outline:2px solid var(--cream);outline-offset:2px}
+
+  /* the viewer */
+  .frame{flex:1 1 auto;min-height:0;border:0;width:100%;display:block;background:#3b1a14}
+
+  /* fallback shown only if <object> can't render (mostly mobile browsers) */
+  .fallback{
+    display:flex;
+    flex-direction:column;
+    align-items:center;
+    justify-content:center;
+    gap:1rem;
+    height:100%;
+    padding:2rem 1.5rem;
+    text-align:center;
+  }
+  .fallback p{margin:0;max-width:34ch;color:var(--cream-dim)}
+</style>
+</head>
+<body>
+
+<header>
+  <span class="name">Sarah M. Smart</span>
+  <span class="sep" aria-hidden="true">·</span>
+  <span class="sub">Portfolio deck</span>
+  <span class="spacer"></span>
+  <a class="dl" href="sarahmsmart-portfolio.pdf" download>Download PDF</a>
+</header>
+
+<object class="frame" data="sarahmsmart-portfolio.pdf" type="application/pdf">
+  <div class="fallback">
+    <p>Your browser can’t display the PDF inline — most likely on mobile.</p>
+    <a class="dl" href="sarahmsmart-portfolio.pdf">Open the PDF</a>
+  </div>
+</object>
+
+</body>
+</html>
