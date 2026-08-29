@@ -8,11 +8,17 @@
 // when the password contains " ' $ ! or spaces, and the password landing in
 // your shell history.
 const fs = require('fs');
+const path = require('path');
 const crypto = require('crypto');
 const readline = require('readline');
 
 const ITER = 200000;
-const input = process.argv[3] || 'site.html';
+// Resolve relative to this file, not the shell's working directory, so the
+// script can be run from anywhere.
+const input = process.argv[3]
+  ? path.resolve(process.argv[3])
+  : path.join(__dirname, 'site.html');
+const output = path.join(__dirname, 'site.enc');
 
 // One shared readline interface, consumed via the 'line' event rather than
 // rl.question(): on stdin EOF readline closes and silently drops any pending
@@ -87,10 +93,10 @@ function ask(query, hide) {
   const ct = Buffer.concat([cipher.update(html), cipher.final()]);
   const tag = cipher.getAuthTag();
 
-  fs.writeFileSync('site.enc', Buffer.concat([salt, iv, ct, tag]));
-  const out = fs.statSync('site.enc').size;
+  fs.writeFileSync(output, Buffer.concat([salt, iv, ct, tag]));
+  const out = fs.statSync(output).size;
   console.log(
     'Wrote site.enc  (' + (out / 1e6).toFixed(2) + ' MB) from ' +
-    input + ' (' + (html.length / 1e6).toFixed(2) + ' MB)'
+    path.basename(input) + ' (' + (html.length / 1e6).toFixed(2) + ' MB)'
   );
 })();
