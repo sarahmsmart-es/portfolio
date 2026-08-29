@@ -1,169 +1,181 @@
 <!doctype html>
 <html lang="en">
 <head>
-<meta charset="utf-8" />
-<meta name="viewport" content="width=device-width, initial-scale=1" />
-<meta name="robots" content="noindex, nofollow" />
-<title>Sarah Smart — Portfolio</title>
-<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/pdf.js/3.11.174/pdf_viewer.min.css" />
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<meta name="robots" content="noindex, nofollow">
+<title>Sarah M. Smart — Portfolio</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin="anonymous">
+<link href="https://fonts.googleapis.com/css2?family=Poppins:wght@500;600;700&family=Source+Serif+4:ital,opsz,wght@0,8..60,400;1,8..60,400&display=swap" rel="stylesheet">
 <style>
   :root{
-    --bg:#0f1115; --panel:#171a21; --ink:#f4f6fb; --muted:#9aa3b2;
-    --accent:#4f7cff; --accent-ink:#fff; --line:#262b36; --err:#ff6b6b;
+    --brand:#A5311F; --dark:#7E2415; --cream:#FBF3E4; --panel:#FFF9EC;
+    --gold:#E8B54B; --tan:#B98E3F; --brown:#33241D; --muted:#5C4B3A;
   }
   *{box-sizing:border-box}
   html,body{height:100%}
   body{
-    margin:0; background:var(--bg); color:var(--ink);
-    font:15px/1.5 -apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,Helvetica,Arial,sans-serif;
-    -webkit-font-smoothing:antialiased;
+    margin:0; background:var(--brand); color:var(--cream);
+    font-family:'Source Serif 4',Georgia,serif;
+    display:flex; align-items:center; justify-content:center;
+    padding:24px; -webkit-font-smoothing:antialiased;
   }
+  .card{width:100%; max-width:420px; text-align:center}
 
-  /* ---- Gate ---- */
-  #gate{
-    position:fixed; inset:0; z-index:50; display:flex; align-items:center; justify-content:center;
-    padding:24px; background:radial-gradient(1200px 600px at 50% -10%, #1b2130 0%, var(--bg) 60%);
+  h1{
+    margin:0 0 6px; font-family:Poppins,sans-serif; font-weight:700;
+    font-size:clamp(24px,6vw,34px); letter-spacing:7px; line-height:1.15;
   }
-  .card{
-    width:100%; max-width:380px; background:var(--panel); border:1px solid var(--line);
-    border-radius:16px; padding:28px 26px; box-shadow:0 20px 60px rgba(0,0,0,.45);
+  .m{position:relative; display:inline-block}
+  .m svg{
+    position:absolute; left:50%; top:-.19em; transform:translateX(-50%) scaleY(-1);
+    width:.85em; height:.92em; pointer-events:none;
   }
-  .card h1{margin:0 0 4px; font-size:19px; letter-spacing:-.01em}
-  .card p{margin:0 0 20px; color:var(--muted); font-size:13px}
-  .field{position:relative; display:flex; gap:8px}
-  input[type=password]{
-    flex:1; padding:12px 14px; font-size:15px; color:var(--ink);
-    background:#0f131b; border:1px solid var(--line); border-radius:10px; outline:none;
+  .kicker{
+    font-family:Poppins,sans-serif; font-weight:600; font-size:11px;
+    letter-spacing:4px; color:var(--gold); margin-bottom:26px;
   }
-  input[type=password]:focus{border-color:var(--accent)}
+  .lede{font-style:italic; font-size:16px; margin:0 0 22px; color:#F0CFA6}
+
+  form{display:flex; flex-direction:column; gap:10px}
+  input{
+    font:inherit; font-size:16px; padding:13px 15px; border-radius:10px;
+    border:1.5px solid var(--tan); background:var(--panel); color:var(--brown);
+    width:100%;
+  }
+  input:focus{outline:2px solid var(--gold); outline-offset:1px; border-color:var(--gold)}
   button{
-    padding:12px 16px; font-size:14px; font-weight:600; cursor:pointer;
-    background:var(--accent); color:var(--accent-ink); border:0; border-radius:10px;
+    font-family:Poppins,sans-serif; font-weight:600; font-size:15px;
+    padding:13px 18px; border-radius:100px; border:0; cursor:pointer;
+    background:var(--gold); color:var(--dark);
   }
-  button:disabled{opacity:.5; cursor:default}
-  .err{color:var(--err); font-size:13px; min-height:18px; margin-top:12px}
-  .spin{display:inline-block; width:14px; height:14px; border:2px solid #fff; border-top-color:transparent;
-    border-radius:50%; animation:sp .7s linear infinite; vertical-align:-2px; margin-right:6px}
-  @keyframes sp{to{transform:rotate(360deg)}}
+  button:hover:not(:disabled){background:#F2C14E}
+  button:disabled{opacity:.6; cursor:default}
 
-  /* ---- Viewer ---- */
-  #app{position:fixed; inset:0; display:none; flex-direction:column}
-  #bar{
-    height:52px; flex:0 0 auto; display:flex; align-items:center; gap:14px; padding:0 16px;
-    background:var(--panel); border-bottom:1px solid var(--line); z-index:10;
+  .msg{min-height:20px; font-size:14px; margin-top:12px; color:#F0CFA6}
+  .msg.err{color:#FFD9CF}
+
+  .bar{
+    height:4px; border-radius:4px; background:rgba(251,243,228,.22);
+    overflow:hidden; margin-top:14px; display:none;
   }
-  #bar .name{font-weight:600; font-size:14px; letter-spacing:-.01em}
-  #bar .sp{flex:1}
-  #bar .pg{color:var(--muted); font-size:13px; font-variant-numeric:tabular-nums}
-  .zbtn{background:#232838; color:var(--ink); font-weight:600; padding:8px 12px; border-radius:8px}
-  #viewerContainer{position:absolute; top:52px; right:0; bottom:0; left:0; overflow:auto; background:#0b0d11}
-  #viewer .page{margin:16px auto; border:1px solid var(--line); box-shadow:0 8px 30px rgba(0,0,0,.4)}
-  .annotationLayer a{position:absolute}
+  .bar.on{display:block}
+  .bar i{display:block; height:100%; width:0; background:var(--gold); transition:width .15s}
+
+  .foot{margin-top:26px; font-size:13px; color:#F0CFA6}
+  .foot a{color:var(--cream)}
 </style>
 </head>
 <body>
 
-<div id="gate">
-  <form class="card" id="gateForm" autocomplete="off">
-    <h1>Sarah Smart — Portfolio</h1>
-    <p>This portfolio is private. Enter the password to view.</p>
-    <div class="field">
-      <input id="pw" type="password" placeholder="Password" autofocus />
-      <button id="go" type="submit">Unlock</button>
-    </div>
-    <div class="err" id="err"></div>
+<main class="card">
+  <h1>SARAH <span class="m">M<svg viewBox="0 0 26 26" aria-hidden="true"><path d="M13 0.5 L23.5 19.5 Q13 25 2.5 19.5 Z" fill="#F2C14E"></path><path d="M2.5 19.5 Q13 25 23.5 19.5 L22.1 17 Q13 21.8 3.9 17 Z" fill="#7E2415"></path><circle cx="13" cy="10" r="2.1" fill="#A5311F"></circle><circle cx="9.8" cy="15" r="1.9" fill="#A5311F"></circle><circle cx="16.2" cy="15.2" r="1.9" fill="#A5311F"></circle></svg></span>. SMART</h1>
+  <div class="kicker">WORD PERSON · PORTFOLIO</div>
+  <p class="lede">This portfolio is password-protected.</p>
+
+  <form id="f">
+    <input id="pw" type="password" placeholder="Password" autocomplete="current-password"
+           autofocus aria-label="Password">
+    <button id="go" type="submit">Unlock</button>
   </form>
-</div>
 
-<div id="app">
-  <div id="bar">
-    <span class="name">Sarah Smart — Portfolio</span>
-    <span class="sp"></span>
-    <button class="zbtn" id="zout" title="Zoom out">–</button>
-    <button class="zbtn" id="zin" title="Zoom in">+</button>
-    <span class="pg" id="pg"></span>
-  </div>
-  <div id="viewerContainer"><div id="viewer" class="pdfViewer"></div></div>
-</div>
+  <div class="bar" id="bar"><i id="fill"></i></div>
+  <div class="msg" id="msg" role="status" aria-live="polite"></div>
 
-<script src="https://cdnjs.cloudflare.com/ajax/libs/pdf.js/3.11.174/pdf.min.js"></script>
-<script src="https://cdnjs.cloudflare.com/ajax/libs/pdf.js/3.11.174/pdf_viewer.min.js"></script>
+  <div class="foot">Looking for the deck? <a href="/deck">View it here</a>.</div>
+</main>
+
 <script>
-const ENC_FILE = 'portfolio.enc';
-const ITER = 200000;
+(function () {
+  'use strict';
+  var ITER = 200000, FILE = 'site.enc';
+  var f = document.getElementById('f'), pw = document.getElementById('pw'),
+      go = document.getElementById('go'), msg = document.getElementById('msg'),
+      bar = document.getElementById('bar'), fill = document.getElementById('fill');
 
-const gate = document.getElementById('gate');
-const form = document.getElementById('gateForm');
-const pwEl = document.getElementById('pw');
-const goEl = document.getElementById('go');
-const errEl = document.getElementById('err');
+  var cached = null;   // the encrypted blob, fetched once
 
-pdfjsLib.GlobalWorkerOptions.workerSrc =
-  'https://cdnjs.cloudflare.com/ajax/libs/pdf.js/3.11.174/pdf.worker.min.js';
+  function say(t, err) { msg.textContent = t; msg.className = err ? 'msg err' : 'msg'; }
 
-async function deriveKey(password, salt){
-  const km = await crypto.subtle.importKey('raw', new TextEncoder().encode(password),
-    'PBKDF2', false, ['deriveKey']);
-  return crypto.subtle.deriveKey(
-    {name:'PBKDF2', salt, iterations:ITER, hash:'SHA-256'},
-    km, {name:'AES-GCM', length:256}, false, ['decrypt']);
-}
-
-async function unlock(password){
-  errEl.textContent = '';
-  goEl.disabled = true;
-  goEl.innerHTML = '<span class="spin"></span>';
-  try {
-    const resp = await fetch(ENC_FILE, {cache:'no-store'});
-    if(!resp.ok) throw new Error('Could not load portfolio data.');
-    const buf = new Uint8Array(await resp.arrayBuffer());
-    const salt = buf.slice(0,16), iv = buf.slice(16,28), data = buf.slice(28);
-    const key = await deriveKey(password, salt);
-    let plain;
-    try {
-      plain = await crypto.subtle.decrypt({name:'AES-GCM', iv}, key, data);
-    } catch(e){
-      throw new Error('Incorrect password.');
-    }
-    await showPdf(new Uint8Array(plain));
-  } catch(e){
-    errEl.textContent = e.message || 'Something went wrong.';
-    goEl.disabled = false;
-    goEl.textContent = 'Unlock';
-    pwEl.select();
+  // Fetch with progress — the payload is a few MB, so a silent wait feels broken.
+  function load() {
+    if (cached) return Promise.resolve(cached);
+    bar.className = 'bar on';
+    return fetch(FILE).then(function (r) {
+      if (!r.ok) throw new Error('fetch ' + r.status);
+      var total = +r.headers.get('content-length') || 0, got = 0, chunks = [];
+      var reader = r.body && r.body.getReader ? r.body.getReader() : null;
+      if (!reader) return r.arrayBuffer();
+      return (function pump() {
+        return reader.read().then(function (res) {
+          if (res.done) {
+            var out = new Uint8Array(got), at = 0;
+            chunks.forEach(function (c) { out.set(c, at); at += c.length; });
+            return out.buffer;
+          }
+          chunks.push(res.value); got += res.value.length;
+          if (total) fill.style.width = Math.round(got / total * 100) + '%';
+          return pump();
+        });
+      })();
+    }).then(function (buf) { cached = buf; return buf; });
   }
-}
 
-let pdfViewer;
-async function showPdf(bytes){
-  const eventBus = new pdfjsViewer.EventBus();
-  const linkService = new pdfjsViewer.PDFLinkService({eventBus, externalLinkTarget:2});
-  pdfViewer = new pdfjsViewer.PDFViewer({
-    container: document.getElementById('viewerContainer'),
-    viewer: document.getElementById('viewer'),
-    eventBus, linkService,
+  function unlock(password, buf) {
+    var b = new Uint8Array(buf);
+    var salt = b.slice(0, 16), iv = b.slice(16, 28), body = b.slice(28);
+    var enc = new TextEncoder();
+    return crypto.subtle.importKey('raw', enc.encode(password), 'PBKDF2', false, ['deriveKey'])
+      .then(function (base) {
+        return crypto.subtle.deriveKey(
+          { name: 'PBKDF2', salt: salt, iterations: ITER, hash: 'SHA-256' },
+          base, { name: 'AES-GCM', length: 256 }, false, ['decrypt']);
+      })
+      .then(function (key) {
+        return crypto.subtle.decrypt({ name: 'AES-GCM', iv: iv }, key, body);
+      })
+      .then(function (plain) { return new TextDecoder().decode(plain); });
+  }
+
+  function show(html) {
+    // Replace this page with the decrypted site. document.write keeps the real
+    // URL (and its #hash), which the site's hash routing depends on.
+    document.open();
+    document.write(html);
+    document.close();
+  }
+
+  function attempt(password, quiet) {
+    go.disabled = true;
+    say(quiet ? 'Unlocking…' : 'Unlocking…');
+    return load()
+      .then(function (buf) { return unlock(password, buf); })
+      .then(function (html) {
+        try { sessionStorage.setItem('sms_pw', password); } catch (e) {}
+        show(html);
+      })
+      .catch(function (e) {
+        bar.className = 'bar';
+        go.disabled = false;
+        if (e && /fetch/.test(e.message)) say('Could not load the portfolio. Try refreshing.', true);
+        else { say('That password didn’t work.', true); pw.value = ''; pw.focus(); }
+        try { sessionStorage.removeItem('sms_pw'); } catch (e2) {}
+      });
+  }
+
+  f.addEventListener('submit', function (e) {
+    e.preventDefault();
+    var v = pw.value;
+    if (!v) { say('Enter the password.', true); pw.focus(); return; }
+    attempt(v, false);
   });
-  linkService.setViewer(pdfViewer);
 
-  const pgEl = document.getElementById('pg');
-  eventBus.on('pagesinit', () => { pdfViewer.currentScaleValue = 'page-width'; });
-  eventBus.on('pagechanging', e => { pgEl.textContent = e.pageNumber + ' / ' + pdfViewer.pagesCount; });
-
-  const pdf = await pdfjsLib.getDocument({data: bytes}).promise;
-  pdfViewer.setDocument(pdf);
-  linkService.setDocument(pdf, null);
-
-  gate.style.display = 'none';
-  document.getElementById('app').style.display = 'flex';
-  window.addEventListener('resize', () => {
-    if(pdfViewer) pdfViewer.currentScaleValue = pdfViewer.currentScaleValue || 'page-width';
-  });
-}
-
-document.getElementById('zin').onclick = () => { if(pdfViewer) pdfViewer.currentScale *= 1.15; };
-document.getElementById('zout').onclick = () => { if(pdfViewer) pdfViewer.currentScale /= 1.15; };
-
-form.addEventListener('submit', e => { e.preventDefault(); if(pwEl.value) unlock(pwEl.value); });
+  // Already unlocked this session? Go straight in (survives refresh).
+  var saved = null;
+  try { saved = sessionStorage.getItem('sms_pw'); } catch (e) {}
+  if (saved) attempt(saved, true);
+})();
 </script>
 </body>
 </html>
